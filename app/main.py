@@ -23,3 +23,12 @@ def trigger_ingestion(background_tasks: BackgroundTasks):
     background_tasks.add_task(_run_ingestion_job)
     return JSONResponse({"message": "Ingestion started"})
 
+
+@app.get("/")
+def read_root():
+    return {"message": "Hello World"}
+
+
+
+
+
