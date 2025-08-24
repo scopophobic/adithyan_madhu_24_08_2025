@@ -40,5 +40,6 @@ class ReportJob(Base):
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False)
     completed_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=True)
     csv_data: Mapped[str] = mapped_column(Text, nullable=True)
+    json_data: Mapped[str] = mapped_column(Text, nullable=True)  # Store JSON for search functionality
     error_message: Mapped[str] = mapped_column(String, nullable=True)
 
