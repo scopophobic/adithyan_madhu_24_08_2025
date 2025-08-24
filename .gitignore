@@ -2,3 +2,4 @@ data/*
 .env
 plan.md
 venv/*
+debugNtests/*
