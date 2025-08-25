@@ -85,7 +85,10 @@ function displayReports(reports) {
             <p><strong>Status:</strong> ${getStatusEmoji(report.status)} ${report.status}</p>
             <p><strong>Created:</strong> ${formatDate(report.created_at)}</p>
             ${report.completed_at ? `<p><strong>Completed:</strong> ${formatDate(report.completed_at)}</p>` : ''}
-            ${report.status === 'Complete' ? '<p class="success">✅ Ready to view</p>' : ''}
+            ${report.status === 'Complete' ? `
+                <p class="success">✅ Ready to view</p>
+                <button class="download-btn" onclick="downloadCSV('${report.report_id}')" style="margin-top: 10px;">📥 Download CSV</button>
+            ` : ''}
         </div>
     `).join('');
 }
@@ -237,9 +240,49 @@ document.addEventListener('DOMContentLoaded', function() {
     loadReports();
 });
 
+// CSV Download Function
+async function downloadCSV(reportId) {
+    try {
+        showElement('loading');
+        
+        const response = await fetch(`${API_BASE}/get_report?report_id=${reportId}`);
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || `HTTP ${response.status}`);
+        }
+        
+        // Get the CSV data as blob
+        const csvBlob = await response.blob();
+        
+        // Create download link
+        const url = window.URL.createObjectURL(csvBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `store_monitoring_report_${reportId.substring(0, 8)}.csv`;
+        
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        
+        // Cleanup
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        
+        console.log(`✅ CSV downloaded: store_monitoring_report_${reportId.substring(0, 8)}.csv`);
+        
+    } catch (error) {
+        console.error('Download failed:', error);
+        showError(`Download failed: ${error.message}`);
+    } finally {
+        hideElement('loading');
+    }
+}
+
 // Add some helpful functions for testing
 window.debugAPI = {
     testConnection: () => fetchAPI('/health'),
     generateReport: () => fetchAPI('/trigger_report'),
-    checkStats: () => fetchAPI('/stats')
+    checkStats: () => fetchAPI('/stats'),
+    downloadCSV: (reportId) => downloadCSV(reportId)
 };

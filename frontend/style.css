@@ -55,6 +55,16 @@ button:hover {
     background: #7f8c8d;
 }
 
+.download-btn {
+    background: #27ae60;
+    font-size: 12px;
+    padding: 8px 12px;
+}
+
+.download-btn:hover {
+    background: #229954;
+}
+
 .section {
     background: white;
     padding: 20px;
