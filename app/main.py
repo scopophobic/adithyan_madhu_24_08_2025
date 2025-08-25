@@ -94,12 +94,12 @@ def list_restaurants(report_id: str):
     Simple list for frontend - click on any restaurant to get details
     """
     try:
-        result = search_report(report_id)  # No filters, just get all
+        result = search_report(report_id) 
         
         if result.get("status_code") != 200:
             raise HTTPException(status_code=result["status_code"], detail=result.get("error", "Failed to get restaurants"))
         
-        # Simplify response - just the restaurant list
+     
         restaurants = []
         for store in result["results"]["stores"]:
             restaurants.append({
@@ -182,6 +182,35 @@ def list_all_reports():
         if 'db' in locals():
             db.close()
         raise HTTPException(status_code=500, detail=f"Error getting reports: {str(e)}")
+
+
+@app.get("/download_csv/{report_id}")
+def download_csv(report_id: str):
+    """
+    Direct CSV download endpoint
+    Returns CSV file with proper filename
+    """
+    try:
+        result = get_report_status(report_id)
+        
+        if result.get("error"):
+            raise HTTPException(status_code=result["status_code"], detail=result["error"])
+        
+        if result["status"] != "Complete":
+            raise HTTPException(status_code=400, detail=f"Report is {result['status'].lower()}, cannot download")
+        
+        return PlainTextResponse(
+            content=result["csv_data"],
+            media_type="text/csv",
+            headers={
+                "Content-Disposition": f"attachment; filename=store_monitoring_report_{report_id[:8]}.csv"
+            }
+        )
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error downloading CSV: {str(e)}")
 
 
 # ===== HELPER ENDPOINTS =====

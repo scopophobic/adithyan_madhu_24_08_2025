@@ -18,7 +18,7 @@ def extrapolate_uptime(
     Extrapolate uptime/downtime from sparse observations
     
     Algorithm:
-    - If no observations, assume store was down for entire period
+    - If no observations, assume store was operating normally (uptime)
     - Before first observation: assume same status as first observation
     - Between observations: assume previous status continues
     - After last observation: assume same status as last observation
@@ -26,9 +26,9 @@ def extrapolate_uptime(
     Returns: (uptime_minutes, downtime_minutes)
     """
     if not observations:
-        # No data, assume downtime for entire period
+        # No data, assume store was operating normally during business hours
         total_minutes = (end_time - start_time).total_seconds() / 60
-        return 0, total_minutes
+        return total_minutes, 0
     
     # Sort observations by timestamp
     sorted_obs = sorted(observations, key=lambda x: x.timestamp_utc)
